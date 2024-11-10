@@ -1,0 +1,64 @@
+body{
+    background-color: #ffffff;
+    color: aliceblue;
+}
+
+.container{
+    display: flex;
+    justify-content: center;
+    margin-top: 20vh;
+}
+
+.calculator{
+    width: 400px;
+    height: 400px;
+    border: 2px solid #000000;
+    box-shadow: 0 0 10px #000000;
+    background-color:#e8d3d3;
+}
+
+.answer-display {
+    color: rgb(0, 0, 0);
+    border-color: #ffffff;
+    background-color: transparent;
+    width: 350px; height:50px;
+    margin: 30px 20px 20px;
+    font-size: xx-large;
+}
+
+.pad{
+    margin-top: 10px;
+    margin-left: 20px; 
+    margin-right: 20px;
+}
+
+.one{
+    color: #000000;
+}
+
+.two{
+    color: rgb(0, 0, 0);
+}
+
+.three{
+    color: rgb(0, 0, 0);
+}
+
+.four{
+    color: rgb(255, 0, 0);
+}
+
+.five{
+    color: rgb(245, 131, 131);
+}
+
+.one, .two, .three, .four, .five {
+    background-color: #ffffff;
+    height: 40px;
+    width: 77px;
+    font-size: x-large;
+    margin: 5px; 
+    border-color:black;
+    box-shadow: 0 0 5px #a9a9bd;
+    border-radius: 10px;
+}
