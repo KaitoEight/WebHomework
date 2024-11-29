@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&display=swap">
+    <style>
+        /* Reset body và thêm bố cục */
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Canvas nền */
+        .canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Login Container */
+        .login-container {
+            opacity: 96%;
+            position: relative;
+            z-index: 2; 
+            width: 90%;
+            max-width: 400px;
+            background-color: orange;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.9rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            text-align: center;
+            font-size: 1rem;
+            color: #000;
+        }
+
+        input {
+            width: 90%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button {
+            width: 95%;
+            padding: 12px 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: #2563eb;
+            color: #fff;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #1e40af;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            label, input, button {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="canvas-container" id="canvas-container"></div>
+
+    <div class="login-container">
+        <h1>Enter Information</h1>
+        <form action="/create" method="post">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="user">User:</label>
+            <input type="text" id="user" name="user" required>
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Canvas với Three.js
+        function initCanvas() {
+            const container = document.getElementById('canvas-container');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const radius = 1.2;
+
+            for (let i = 0; i < 5000; i++) {
+                const x = (Math.random() - 0.5) * 2 * radius;
+                const y = (Math.random() - 0.5) * 2 * radius;
+                const z = (Math.random() - 0.5) * 2 * radius;
+                if (x * x + y * y + z * z <= radius * radius) {
+                    positions.push(x, y, z);
+                }
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+            const material = new THREE.PointsMaterial({ color: 0x13232, size: 0.01 });
+            const points = new THREE.Points(geometry, material);
+            scene.add(points);
+
+            camera.position.z = 1;
+
+            function animate() {
+                requestAnimationFrame(animate);
+                points.rotation.x -= 0.001;
+                points.rotation.y -= 0.0015;
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initCanvas);
+    </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODO App</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600&display=swap">
+  <style>
+    /* Reset body và thêm bố cục */
+    body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Canvas nền */
+    .canvas-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* TODO Container */
+    .todo-container {
+      opacity: 96%;
+      position: relative;
+      z-index: 2; /* Nằm trên canvas */
+      width: 90%;
+      max-width: 1000px;
+      background-color: orange;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 16px;
+      text-align: left;
+      font-size: 1rem;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: black;
+    }
+
+    tr:hover {
+      background-color: #f1f5f9;
+    }
+
+    button {
+      padding: 8px 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button.update-status {
+      background-color: #2563eb;
+      color: #fff;
+    }
+
+    button.update-status:hover {
+      background-color: #1e40af;
+    }
+
+    button.update-status:disabled {
+      background-color: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      th, td {
+        font-size: 0.85rem;
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="canvas-container" id="canvas-container"></div>
+  
+  <!-- TODO App -->
+  <div class="todo-container">
+    <h1>Your Tasks</h1>
+    <% if (tasks && tasks.length > 0) { %>
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>User</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% tasks.forEach(function(task) { %>
+            <tr>
+              <td><%= task.title %></td>
+              <td><%= task.user %></td>
+              <td class="task-status" data-task-id="<%= task._id %>"><%= task.isDone ? 'Done' : 'Not Done' %></td>
+              <td>
+                <button 
+                  class="update-status" 
+                  data-task-id="<%= task._id %>" 
+                  <%= task.isDone ? 'disabled' : '' %>>
+                  Update Status
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } else { %>
+      <p>No tasks available. Add new tasks to get started!</p>
+    <% } %>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script>
+    $(document).on('click', '.update-status', function() {
+      const taskId = $(this).data('task-id');
+
+      // AJAX request to update the task status
+      $.ajax({
+        method: 'POST',
+        url: '/update-status',
+        data: { taskId },
+        success: function(response) {
+          if (response.status === true) {
+            $(`[data-task-id="${response.taskId}"]`).text('Done');
+            $(`button[data-task-id="${response.taskId}"]`).prop('disabled', true);
+          }
+        },
+        error: function(error) {
+          alert('Error updating task status. Please try again later.');
+          console.error('Error updating task status:', error);
+        }
+      });
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Canvas với Three.js
+    function initCanvas() {
+      const container = document.getElementById('canvas-container');
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      container.appendChild(renderer.domElement);
+
+      const geometry = new THREE.BufferGeometry();
+      const positions = [];
+      const radius = 1.2;
+
+      for (let i = 0; i < 5000; i++) {
+        const x = (Math.random() - 0.5) * 2 * radius;
+        const y = (Math.random() - 0.5) * 2 * radius;
+        const z = (Math.random() - 0.5) * 2 * radius;
+        if (x * x + y * y + z * z <= radius * radius) {
+          positions.push(x, y, z);
+        }
+      }
+
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+
+      const material = new THREE.PointsMaterial({ color: 0x13232, size: 0.01 });
+      const points = new THREE.Points(geometry, material);
+      scene.add(points);
+
+      camera.position.z = 1;
+
+      function animate() {
+        requestAnimationFrame(animate);
+        points.rotation.x -= 0.001;
+        points.rotation.y -= 0.0015;
+        renderer.render(scene, camera);
+      }
+
+      animate();
+
+      window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initCanvas);
+  </script>
+</body>
+</html>
